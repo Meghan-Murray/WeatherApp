@@ -57,7 +57,6 @@ std::string getRequest(char* request)
 	
 	result = result.substr(result.find('{'));
 
-  //  std::cout << result << std::endl;
     shutdown(fd, SHUT_RDWR);
     close(fd);
 	return result;
@@ -67,7 +66,12 @@ std::string getInfoOfCity(const char* name)
 {
 	//if (strlen(name) > 60) 
 	char request[BUFFER_SIZE] = "GET /v1/current.json?key=" APIKEY "&q=";
-	strcat(request, name);
+    std::string name_escaped = name;
+    int index = 0;
+    while((index = name_escaped.find(' '))!=std::string::npos) {
+        name_escaped.replace(index, 1, "%20");
+    }
+	strcat(request, name_escaped.c_str());
 	strcat(request, " HTTP/1.1\r\nHost: " URL "\r\nConnection: close\r\n\r\n");
     std::string jsonText = getRequest(request);
 

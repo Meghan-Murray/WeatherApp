@@ -1,7 +1,7 @@
-#include <algorithm> // for std::find
-#include <fstream>   // for std::ifstream
-#include <cassert>   // for assert()
-#include <cctype>    // for isdigit()
+#include <algorithm> 
+#include <fstream>  
+#include <cassert>   
+#include <cctype>    
 #include <iostream>
 
 #include "json.h"
@@ -23,7 +23,6 @@ void JsonParser::ReadFile(const std::string & filepath, std::string & output)
     std::string line;
 
     while(std::getline(file, line)) {
-        output.append(line); // append() copies the argument passed as a reference(&std::string)
     }
 }
 
@@ -40,9 +39,9 @@ JsonValue JsonParser::ParsePrimitive(const std::string & text, text_it start, te
     }
     size_t float_point_index = substr.find(".");
 
-    if(float_point_index >= (end - start)) { // integer
+    if(float_point_index >= (end - start)) { 
         return {.i = std::stoi(substr)};
-    } else { // float(double)
+    } else { 
         return {.d = std::stod(substr)};
     }
 }
@@ -51,7 +50,6 @@ std::pair<std::string, JsonValue> JsonParser::RetriveKeyValuePair(const std::str
 {
     assert(it != text.end());
 
-    // ignore white spaces & line breaks
     while(*it == ' ' || *it == '\n') {
         it++;
     }
@@ -59,7 +57,6 @@ std::pair<std::string, JsonValue> JsonParser::RetriveKeyValuePair(const std::str
     text_it curr_it;
     std::string key;
     JsonValue value;
-    // if hit a double quote for the first time, it is a key
     if(*it == '\"') {
         curr_it = ++it;
         while(*it != '\"') {
@@ -67,20 +64,18 @@ std::pair<std::string, JsonValue> JsonParser::RetriveKeyValuePair(const std::str
         }
 
         key = text.substr(curr_it - text.begin(), it - curr_it);
-        assert(*(++it) == ':'); // assert that we are parsing the key string
+        assert(*(++it) == ':'); 
         it++;
     }
 
-    // now we need to have its corresponding value
     while(*it == ' ' || *it == '\n') {
         it++;
     }
 
     if(*it == '{') {
-        // another json format
         value = ParseJsonHelper(text, it);
     } else {
-        // primitive value(double or int)
+
         curr_it = it;
         bool column_bracket = false;
         while(isdigit(*it) || *it == '-' || *it == '.' || *it == '"' || column_bracket) {
@@ -92,7 +87,6 @@ std::pair<std::string, JsonValue> JsonParser::RetriveKeyValuePair(const std::str
         value = ParsePrimitive(text, curr_it, it);
     }
 
-    // after parsing the value, check whether the current iterator points to a comma
     if(*it == ',') {
         it++;
     }
@@ -102,7 +96,7 @@ std::pair<std::string, JsonValue> JsonParser::RetriveKeyValuePair(const std::str
 
 JsonValue JsonParser::ParseJsonHelper(const std::string & text, text_it & it)
 {
-    assert(*it == '{'); // must start with the left curly bracket
+    assert(*it == '{'); 
     it++;
 
     std::map<std::string, JsonValue> * json_map = new std::map<std::string, JsonValue>;
@@ -116,7 +110,7 @@ JsonValue JsonParser::ParseJsonHelper(const std::string & text, text_it & it)
         }
     } while(*it != '}');
 
-    it++; // after '}'
+    it++; 
 
     return {.json = json_map};
 }
